@@ -86,11 +86,14 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function count_user_posts($event)
 	{
-		$sql = 'SELECT u.username as USERNAME, COUNT(*) as POST_COUNT
+		$sql = 'SELECT u.username as USERNAME, 
+					u.username_clean as USERNAME_CLEAN,
+					COUNT(*) as POST_COUNT
 			FROM ' . POSTS_TABLE . ' p
 			LEFT OUTER JOIN ' . USERS_TABLE . ' u
-			ON u.user_id = p.poster_id
-			WHERE topic_id = ' . $event['topic_data']['topic_id'] . ' AND p.post_visibility = 1
+				ON u.user_id = p.poster_id
+			WHERE topic_id = ' . $event['topic_data']['topic_id'] . ' 
+				AND p.post_visibility = 1
 			GROUP BY u.user_id
 			ORDER BY COUNT(*) DESC';
 		$result = $this->db->sql_query($sql);

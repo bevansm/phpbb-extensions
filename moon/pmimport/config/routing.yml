@@ -1,0 +1,3 @@
+moon_pmimport_controller:
+    path: /demo/{name}
+    defaults: { _controller: moon.pmimport.controller.main:handle }
