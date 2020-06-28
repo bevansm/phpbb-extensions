@@ -1,0 +1,33 @@
+<!-- IF U_ISOS_USERS -->
+<div
+	class="dropdown-container dropdown-container-left dropdown-up dropdown-{S_CONTENT_FLOW_END} dropdown-button-control"
+	id="isos"
+>
+	<span
+		title="{{ lang('ISOS_ISOS') }}"
+		class="button button-secondary dropdown-trigger dropdown-select"
+	>
+		<i class="icon fa-users fa-fw" aria-hidden="true"></i
+		><span class="sr-only">{{ lang('ISOS_ISOS') }}</span>
+		<span class="caret"
+			><i class="icon fa-sort-down fa-fw" aria-hidden="true"></i
+		></span>
+	</span>
+	<div class="dropdown">
+		<div class="pointer"><div class="pointer-inner"></div></div>
+		<ul class="dropdown-contents">
+			<li class="centered-text">{{ lang('ISOS_ISO') }} ({{ lang('ISOS_COUNT') }})</li>
+			<hr/>
+			<!-- BEGIN U_ISOS_USERS -->
+			<li>
+				<a
+					href="./search.php?t={{ TOPIC_ID }}&author={{ U_ISOS_USERS.USERNAME }}"
+					>{{ U_ISOS_USERS.USERNAME }} ({{ U_ISOS_USERS.POST_COUNT
+					}})</a
+				><span>
+			</li>
+			<!-- END U_ISOS_USERS -->
+		</ul>
+	</div>
+</div>
+<!-- ENDIF -->
