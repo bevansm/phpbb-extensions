@@ -90,7 +90,7 @@ class main_listener implements EventSubscriberInterface
 			FROM ' . POSTS_TABLE . ' p
 			LEFT OUTER JOIN ' . USERS_TABLE . ' u
 			ON u.user_id = p.poster_id
-			WHERE topic_id = ' . $event['topic_data']['topic_id'] . '
+			WHERE topic_id = ' . $event['topic_data']['topic_id'] . ' AND p.post_visibility = 1
 			GROUP BY u.user_id
 			ORDER BY COUNT(*) DESC';
 		$result = $this->db->sql_query($sql);
