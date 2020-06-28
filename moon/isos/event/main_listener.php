@@ -91,7 +91,8 @@ class main_listener implements EventSubscriberInterface
 			LEFT OUTER JOIN ' . USERS_TABLE . ' u
 			ON u.user_id = p.poster_id
 			WHERE topic_id = ' . $event['topic_data']['topic_id'] . '
-			GROUP BY u.user_id' ;
+			GROUP BY u.user_id
+			ORDER BY COUNT(*) DESC';
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result)) {
 			$this->template->assign_block_vars('U_ISOS_USERS', $row);
