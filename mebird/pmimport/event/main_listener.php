@@ -25,7 +25,7 @@ class main_listener implements EventSubscriberInterface
 		return array(
 			'core.user_setup'							=> 'load_language_on_setup',
 			'core.display_forums_modify_template_vars'	=> 'display_forums_modify_template_vars',
-			'core.permissions'	=> 'add_permissions',
+			'core.permissions'							=> 'add_permissions',
 		);
 	}
 
@@ -102,12 +102,13 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_permissions($event)
 	{
+		print("HI!");
 		$permissions = $event['permissions'];
 		$permissions['u_pm_import_sent'] = array(
 			'lang' => 'ACL_U_PM_IMPORT_SENT', 'cat' => 'pm'
 		);
-		$permissions['u_pm_import_recieved'] = array(
-			'lang' => 'ACL_U_PM_IMPORT_RECIEVED', 'cat' => 'pm'
+		$permissions['u_pm_import_received'] = array(
+			'lang' => 'ACL_U_PM_IMPORT_RECEIVED', 'cat' => 'pm'
 		);
 		$event['permissions'] = $permissions;
 	}

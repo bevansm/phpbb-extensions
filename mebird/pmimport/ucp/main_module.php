@@ -23,7 +23,7 @@ class main_module
 	 * Main UCP module
 	 *
 	 * @param int    $id   The module ID
-	 * @param string $mode The module mode (for example: manage or settings)
+	 * @param string $mode The module mode ("sent" or "received")
 	 * @throws \Exception
 	 */
 	public function main($id, $mode)

@@ -10,3 +10,12 @@ services:
       - '@request'
       - '@template'
       - '@user'
+  mebird.pmimport.listener:
+    class: mebird\pmimport\event\main_listener
+    arguments:
+      - '@language'
+      - '@controller.helper'
+      - '@template'
+      - '%core.php_ext%'
+    tags:
+      - { name: event.listener }
