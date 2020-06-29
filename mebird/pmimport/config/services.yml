@@ -1,0 +1,12 @@
+imports:
+  - { resource: parameters.yml }
+
+services:
+  mebird.pmimport.controller.ucp:
+    class: mebird\pmimport\controller\ucp_controller
+    arguments:
+      - '@dbal.conn'
+      - '@language'
+      - '@request'
+      - '@template'
+      - '@user'

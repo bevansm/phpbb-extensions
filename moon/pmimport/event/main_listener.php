@@ -1,14 +1,14 @@
 <?php
 /**
  *
- * Import PMs. An extension for the phpBB Forum Software package.
+ * PM Import. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, moon, https://github.com/mebird
+ * @copyright (c) 2020, mebird, https://github.com/mebird
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
 
-namespace moon\pmimport\event;
+namespace mebird\pmimport\event;
 
 /**
  * @ignore
@@ -16,7 +16,7 @@ namespace moon\pmimport\event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Import PMs Event listener.
+ * PM Import Event listener.
  */
 class main_listener implements EventSubscriberInterface
 {
@@ -24,9 +24,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		return array(
 			'core.user_setup'							=> 'load_language_on_setup',
-			'core.page_header'							=> 'add_page_header_link',
-			'core.viewonline_overwrite_location'		=> 'viewonline_page',
-	'core.display_forums_modify_template_vars'	=> 'display_forums_modify_template_vars',
+			'core.display_forums_modify_template_vars'	=> 'display_forums_modify_template_vars',
 			'core.permissions'	=> 'add_permissions',
 		);
 	}
@@ -68,34 +66,10 @@ class main_listener implements EventSubscriberInterface
 	{
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
-			'ext_name' => 'moon/pmimport',
+			'ext_name' => 'mebird/pmimport',
 			'lang_set' => 'common',
 		);
 		$event['lang_set_ext'] = $lang_set_ext;
-	}
-
-	/**
-	 * Add a link to the controller in the forum navbar
-	 */
-	public function add_page_header_link()
-	{
-		$this->template->assign_vars(array(
-			'U_PMIMPORT_PAGE'	=> $this->helper->route('moon_pmimport_controller', array('name' => 'world')),
-		));
-	}
-
-	/**
-	 * Show users viewing Import PMs page on the Who Is Online page
-	 *
-	 * @param \phpbb\event\data	$event	Event object
-	 */
-	public function viewonline_page($event)
-	{
-		if ($event['on_page'][1] === 'app' && strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/demo') === 0)
-		{
-			$event['location'] = $this->language->lang('VIEWING_MOON_PMIMPORT');
-			$event['location_url'] = $this->helper->route('moon_pmimport_controller', array('name' => 'world'));
-		}
 	}
 
 	/**
@@ -120,20 +94,21 @@ class main_listener implements EventSubscriberInterface
 	 *
 	 * Developers note: To control access to ACP, MCP and UCP modules, you
 	 * must assign your permissions in your module_info.php file. For example,
-	 * to allow only users with the a_new_moon_pmimport permission
+	 * to allow only users with the a_new_mebird_pmimport permission
 	 * access to your ACP module, you would set this in your acp/main_info.php:
-	 *    'auth' => 'ext_moon/pmimport && acl_a_new_moon_pmimport'
+	 *    'auth' => 'ext_mebird/pmimport && acl_a_new_mebird_pmimport'
 	 *
 	 * @param \phpbb\event\data	$event	Event object
 	 */
 	public function add_permissions($event)
 	{
 		$permissions = $event['permissions'];
-
-		$permissions['a_new_moon_pmimport'] = array('lang' => 'ACL_A_NEW_MOON_PMIMPORT', 'cat' => 'misc');
-		$permissions['m_new_moon_pmimport'] = array('lang' => 'ACL_M_NEW_MOON_PMIMPORT', 'cat' => 'post_actions');
-		$permissions['u_new_moon_pmimport'] = array('lang' => 'ACL_U_NEW_MOON_PMIMPORT', 'cat' => 'post');
-
+		$permissions['u_pm_import_sent'] = array(
+			'lang' => 'ACL_U_PM_IMPORT_SENT', 'cat' => 'pm'
+		);
+		$permissions['u_pm_import_recieved'] = array(
+			'lang' => 'ACL_U_PM_IMPORT_RECIEVED', 'cat' => 'pm'
+		);
 		$event['permissions'] = $permissions;
 	}
 }

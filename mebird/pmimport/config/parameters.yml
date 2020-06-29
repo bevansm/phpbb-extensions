@@ -1,0 +1,2 @@
+parameters:
+  mebird.pmimport.tables.pmimport_table: '%core.table_prefix%mebird_pmimport_table'

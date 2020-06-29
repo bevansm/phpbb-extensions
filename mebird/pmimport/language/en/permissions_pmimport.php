@@ -34,14 +34,18 @@ if (empty($lang) || !is_array($lang))
 // ’ » “ ” …
 //
 
+/**
+*	EXTENSION-DEVELOPERS PLEASE NOTE
+*
+*	You are able to put your permission sets into your extension.
+*	The permissions logic should be added via the 'core.permissions' event.
+*	You can easily add new permission categories, types and permissions, by
+*	simply merging them into the respective arrays.
+*	The respective language strings should be added into a language file, that
+*	start with 'permissions_', so they are automatically loaded within the ACP.
+*/
+
 $lang = array_merge($lang, array(
-
-	'PMIMPORT_HELLO'		=> 'Hello %s!',
-	'PMIMPORT_GOODBYE'		=> 'Goodbye %s!',
-
-	'PMIMPORT_EVENT'		=> ' :: Pmimport Event :: ',
-
-	'PMIMPORT_PAGE'			=> 'Pmimport Page',
-	'VIEWING_MOON_PMIMPORT'			=> 'Viewing PM Import page',
-
+	'ACL_U_PM_IMPORT_SENT'		=> 'Can import sent PMs from CSV text',
+	'ACL_U_PM_IMPORT_RECEIVED'	=> 'Can import receieved PMs from CSV text',
 ));
