@@ -23,7 +23,8 @@ services:
       - '443:443'
     volumes:
       - 'phpbb_data:/bitnami'
-      - '.:/bitnami/phpbb/ext'
+      - '.:/bitnami/phpbb/ext/mebird'
+      - './phpbb:/bitnami/phpbb/ext/phpbb'
     depends_on:
       - mariadb
   phpmyadmin:
