@@ -35,13 +35,6 @@ if (empty($lang) || !is_array($lang))
 //
 
 $lang = array_merge($lang, array(
-
-	'PMIMPORT_HELLO'		=> 'Hello %s!',
-	'PMIMPORT_GOODBYE'		=> 'Goodbye %s!',
-
-	'PMIMPORT_EVENT'		=> ' :: Pmimport Event :: ',
-
-	'PMIMPORT_PAGE'			=> 'Pmimport Page',
-	'VIEWING_MOON_PMIMPORT'			=> 'Viewing PM Import page',
-
+	'FILE_CSV'		=> 'CSV',
+	'FILE_XML'		=> 'XML',
 ));

@@ -23,14 +23,28 @@ class install_ucp_module extends \phpbb\db\migration\migration
 			array('module.add', array(
 				'ucp',
 				0,
-				'UCP_PM_IMPORT_TITLE'
+				'UCP_PM_IMPORT'
 			)),
+
 			array('module.add', array(
 				'ucp',
-				'UCP_PM_IMPORT_TITLE',
+				'UCP_PM_IMPORT',
 				array(
-					'module_basename'	=> '\mebird\pmimport\ucp\main_module',
-					'modes'				=> array('settings'),
+					'module_basename'   => '\mebird\pmimport\ucp\main_module',
+					'title'	=> 'UCP_PM_IMPORT_SENT',
+					'auth'	=> 'ext_mebird/pmimport && acl_u_pm_import_sent',
+					'modes' => array('sent'),
+				),
+			)),
+
+			array('module.add', array(
+				'ucp',
+				'UCP_PM_IMPORT',
+				array(
+					'module_basename'   => '\mebird\pmimport\ucp\main_module',
+					'title'	=> 'UCP_PM_IMPORT_RECEIVED',
+					'auth'	=> 'ext_mebird/pmimport && acl_u_pm_import_received',
+					'modes' => array('received'),
 				),
 			)),
 		);

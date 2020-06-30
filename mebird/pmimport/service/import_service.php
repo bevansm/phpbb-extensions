@@ -8,18 +8,19 @@
  *
  */
 
-namespace mebird\pmimport;
+namespace mebird\pmimport\service;
+use phpbb\db\driver\factory as db;
 
 /**
  * PM Import Service info.
  */
-class service
+class import_service
 {
 	/** @var \phpbb\user */
 	protected $user;
 
-	/** @var string */
-	protected $table_name;
+	/** @var db */
+	protected $db;
 
 	/**
 	 * Constructor
@@ -27,10 +28,10 @@ class service
 	 * @param \phpbb\user $user       User object
 	 * @param string      $table_name The name of a db table
 	 */
-	public function __construct(\phpbb\user $user, $table_name)
+	public function __construct(\phpbb\user $user, db $db)
 	{
 		$this->user = $user;
-		$this->table_name = $table_name;
+		$this->db = $db;
 	}
 
 	/**

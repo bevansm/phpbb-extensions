@@ -19,6 +19,11 @@ class main_module
 	public $tpl_name;
 	public $u_action;
 
+	protected $user;
+	protected $template;
+
+	protected $import_service;
+
 	/**
 	 * Main UCP module
 	 *
@@ -28,24 +33,44 @@ class main_module
 	 */
 	public function main($id, $mode)
 	{
-		global $phpbb_container;
+		global $phpbb_container, $user, $template;
 
-		/** @var \mebird\pmimport\controller\ucp_controller $ucp_controller */
-		$ucp_controller = $phpbb_container->get('mebird.pmimport.controller.ucp');
+		$this->user = $user;
+		$this->template = $template;
+		$this->import_service = $phpbb_container->get('mebird.pmimport.import_service');
 
-		/** @var \phpbb\language\language $language */
-		$language = $phpbb_container->get('language');
+		switch ($mode) {
+			case 'sent':
+				$this->mode_sent();
+			break;
+			case 'received':
+				$this->mode_received();
+			break;
+			default:
+				trigger_error('NO_ACTION_MODE', E_USER_ERROR);
+			break;
+		}
+	}
 
-		// Load a template for our UCP page
-		$this->tpl_name = 'ucp_pmimport_body';
+	private function mode_sent(): void
+	{
+		$this->page_title = $this->user->lang('UCP_PM_IMPORT_SENT');
+		$this->tpl_name = 'ucp_pm_import';
+		$this->template->assign_vars(array(
+			'U_TITLE' 	=> 'UCP_PM_IMPORT_SENT',
+			'U_EXPLAIN' => 'UCP_PM_IMPORT_USER_EXPLAIN_SENT',
+			'U_CHANGE'	=> 'UCP_PM_IMPORT_USER_CHANGE_SENT'
+		));
+	}
 
-		// Set the page title for our UCP page
-		$this->page_title = $language->lang('UCP_PMIMPORT_TITLE');
-
-		// Make the $u_action url available in our UCP controller
-		$ucp_controller->set_page_url($this->u_action);
-
-		// Load the display options handle in our UCP controller
-		$ucp_controller->display_options();
+	private function mode_received(): void
+	{
+		$this->page_title = $this->user->lang('UCP_PM_IMPORT_RECEIVED');
+		$this->tpl_name = 'ucp_pm_import';
+		$this->template->assign_vars(array(
+			'U_TITLE' 	=> 'UCP_PM_IMPORT_RECEIVED',
+			'U_EXPLAIN' => 'UCP_PM_IMPORT_USER_EXPLAIN_RECEIVED',
+			'U_CHANGE'	=> 'UCP_PM_IMPORT_USER_CHANGE_RECEIVED'
+		));
 	}
 }
