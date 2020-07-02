@@ -1,4 +1,5 @@
 .gitignore
+res/
 docker-compose.yml
 README.md
 *.zip

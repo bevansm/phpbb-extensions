@@ -1,14 +1,9 @@
 {% include 'ucp_header.html' %}
-<form
-  id="mebird_pmimport_ucp"
-  name="mebird_pmimport_ucp"
-  method="post"
-  action="{{ U_UCP_ACTION }}"
->
+<form id="ucp" method="post" action="{{ U_ACTION }}" {{ S_FORM_ENCTYPE }}>
   <h2>{{ lang(U_TITLE) }}</h2>
   <div class="panel">
-    {% if S_ERROR %}
-    <p class="error">{{ ERROR_MSG }}</p>
+    {% if ERROR %}
+    <p class="error">{{ ERROR }}</p>
     {% endif %}
     <fieldset class="fields1">
       <dl>
@@ -93,27 +88,23 @@
         </dd>
       </dl>
     </fieldset>
-    <fieldset>
-      <dl>
-        <dt>&nbsp;</dt>
-        <dd>
-          <input
-            type="submit"
-            name="submit"
-            id="submit"
-            class="button1"
-            value="{{ lang('SUBMIT') }}"
-            tabindex="2"
-          />&nbsp;
-          <input
-            type="reset"
-            name="reset"
-            class="button2"
-            value="{{ lang('RESET') }}"
-          />
-        </dd>
-      </dl>
-      {{ S_HIDDEN_FIELDS }} {{ S_FORM_TOKEN }}
+    <fieldset class="submit-buttons">
+      {{ S_HIDDEN_FIELDS }}
+      <input
+        type="submit"
+        name="submit"
+        id="submit"
+        class="button1"
+        value="{{ lang('SUBMIT') }}"
+        tabindex="2"
+      />&nbsp;
+      <input
+        type="reset"
+        name="reset"
+        class="button2"
+        value="{{ lang('RESET') }}"
+      />
+      {{ S_FORM_TOKEN }}
     </fieldset>
   </div>
 </form>

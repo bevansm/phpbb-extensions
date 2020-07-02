@@ -1,4 +1,5 @@
 paul999/
-phpbb/*
+phpbb/
+res/
 *.zip
 *.htm
