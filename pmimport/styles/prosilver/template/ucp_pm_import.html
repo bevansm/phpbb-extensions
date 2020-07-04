@@ -1,5 +1,5 @@
 {% include 'ucp_header.html' %}
-<form id="ucp" method="post" action="{{ U_ACTION }}" {{ S_FORM_ENCTYPE }}>
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}" {{ S_FORM_ENCTYPE }}>
   <h2>{{ lang(U_TITLE) }}</h2>
   <div class="panel">
     {% if ERROR %}
@@ -18,8 +18,8 @@
         <dd>
           <div id="import" class="message-box">
             <textarea
-              name="signature"
-              id="signature"
+              name="import_text"
+              id="import_text"
               style="height: 18em;"
               name="message"
               id="message"
@@ -31,7 +31,9 @@
               onkeyup="storeCaret(this);"
               onfocus="initInsertions();"
               class="inputbox"
-            ></textarea>
+            >
+{{ U_IMPORT }}</textarea
+            >
           </div>
         </dd>
       </dl>
@@ -46,8 +48,8 @@
         <dd>
           <div id="change_users" class="message-box">
             <textarea
-              name="signature"
-              id="signature"
+              name="users_text"
+              id="users_text"
               style="height: 12em;"
               name="message"
               id="message"
@@ -59,7 +61,9 @@
               onkeyup="storeCaret(this);"
               onfocus="initInsertions();"
               class="inputbox"
-            ></textarea>
+            >
+{{ U_USERS }}</textarea
+            >
           </div>
         </dd>
       </dl>
@@ -82,7 +86,13 @@
             {{ lang('FILE_CSV') }}
           </label>
           <label
-            ><input type="radio" class="radio" name="upload_type" value="xml" />
+            ><input
+              type="radio"
+              class="radio"
+              name="upload_type"
+              value="xml"
+              disabled="true"
+            />
             {{ lang('FILE_XML') }}</label
           >
         </dd>

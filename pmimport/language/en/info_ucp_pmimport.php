@@ -34,4 +34,8 @@ $lang = array_merge($lang, array(
 	'UCP_PM_IMPORT_ADD_USER'				=> 'Add user',
 	'UCP_PM_IMPORT_TYPE'					=> 'Import type',				
 	'UCP_PM_IMPORT_SAVED'					=> 'Private messages successfully imported!',
+	'UCP_PM_IMPORT_ERROR_USR_DUP'			=> 'Multiple "new users" provided for %s.',
+	'UCP_PM_IMPORT_ERROR_USR_FORMAT'		=> 'Improperly formatted user mapping: %s',
+	'UCP_PM_IMPORT_ERROR_INVALID_TIME'		=> 'Invalid timestamp: %s',
+	'UCP_PM_IMPORT_ERROR_USERS'				=> 'Unable to find at least one of the following users: %s'
 ));

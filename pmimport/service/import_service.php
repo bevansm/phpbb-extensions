@@ -22,35 +22,62 @@ class import_service
 	/** @var db */
 	protected $db;
 
+	/** @var \phpbb\textformatter\s9e\parser */
+	protected $parser;
+
 	/**
 	 * Constructor
 	 *
-	 * @param \phpbb\user $user       User object
-	 * @param string      $table_name The name of a db table
+	 * @param \phpbb\user 						$user       User object
+	 * @param string      						$table_name The name of a db table
+	 * @param \phpbb\textformatter\s9e\parser	$parser 	A bbcode text parser
 	 */
-	public function __construct(\phpbb\user $user, db $db)
+	public function __construct(\phpbb\user $user, db $db, \phpbb\textformatter\s9e\parser $parser)
 	{
 		$this->user = $user;
 		$this->db = $db;
+
+		$parser->enable_bbcodes();
+		$parser->enable_magic_url();
+		$parser->enable_smilies();
+		$this->parser = $parser;
 	}
 
-	private function parse_time($str) {
-		return DateTime::createFromFormat('Y-m-d H:i:s', $myString);
+	private function parse_users(&$users, $str) 
+	{
+		if (!trim($str))
+		{
+			return false;
+		}
+		foreach (explode("\n", $str) as $row)
+		{
+			$um = array_filter(array_map('trim', explode(",", $row)));
+			if (count($um) != 2)
+			{
+				return $this->user->lang('UCP_PM_IMPORT_ERROR_USR_FORMAT', $row);
+			}
+			if (array_key_exists($um[0], $users)) {
+				return $this->user->lang('UCP_PM_IMPORT_ERROR_USR_DUP', $um[0]);
+			}
+			$users[utf8_clean_string($um[0])] = utf8_clean_string($um[1]);
+		}
+		return false;
 	}
 
 	public function import(string $str, string $type, string $str_users, string $mode)
 	{
 		global $phpbb_root_path, $phpEx;
 
-		$users = str_getcsv($str_users);
-		try {
-			$users = array_combine(array_column($arr, 0), array_column($arr, 1));
-		} catch (Exception $e) {
-			return 'Unable to parse users';
+		$users = [];
+		$err = $this->parse_users($users, $str_users);
+		if ($err) {
+			return $err;
 		}
 
 		$pms = array();
-		$err = $type === 'csv' ? $this->parse_csv($pms, $str, $users, $mode) : $this->parse_xml($pms, $str, $users, $mode);
+		$err = $type === 'csv' 
+			? $this->parse_csv($pms, $str, $users, $mode) 
+			: $this->parse_xml($pms, $str, $users, $mode);
 		if ($err) {
 			return $err;
 		}
@@ -63,30 +90,28 @@ class import_service
 		{
 			include($phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx);
 		}
-		if (!class_exists('parse_message'))
-		{
-			include($phpbb_root_path . 'includes/message_parser.' . $phpEx);
-		}
 
 		foreach ($pms as &$pm) {
 			$to = array();
 			$err = user_get_id_name($to, $pm['recipients']);
-			if ($err) {
-				return $err;
+			var_dump($pm['recipients']);
+			var_dump($to);
+			print_r("\r\n<br/>");
+			if ($err || count($to) != count($pm['recipients'])) {
+				return $this->user->lang('UCP_PM_IMPORT_ERROR_USERS', implode(', ', $pm['recipients']));
 			}
 
 			$from = array();
-			$err = user_get_id_name($from, [$pm['sender']]);
+			$sender = [$pm['sender']];
+			$err = user_get_id_name($from, $sender);
 			if ($err) {
-				return $err;
+				return  $this->user->lang('UCP_PM_IMPORT_ERROR_USERS', $pm['sender']);
 			}
 
-			$message_parser = new parse_message($pm['body']);
-			$message_parser->parse(TRUE, TRUE, TRUE);
 			$pm = array_merge($pm, array(
-				'message_text' => $message_parser->message,
-				'bbcode_bitfield' => $message_parser->bbcode_bitfield,
-				'bbcode_uid' => $message_parser->bbcode_uid,
+				'message' => $this->parser->parse($pm['body']),
+				'bbcode_bitfield' => '',
+				'bbcode_uid' => '',
 				'enable_bbcode' => 1,
 				'icon_id' => 7,
 				'address_list' => array('u' => array_map(function() { return 'to'; }, array_flip($to))),
@@ -95,6 +120,7 @@ class import_service
 				'enable_sig' => 1,
 				'enable_urls' => 1,
 				'enable_bbcode' => 1,
+				'enable_smilies' => 1
 			));
 		}
 
@@ -103,35 +129,37 @@ class import_service
 			$sql = 'SELECT msg_id, author_id
 					FROM ' . PRIVMSGS_TABLE. '
 					WHERE author_id = ' . $pm['from_user_id'] . '
-					AND message_time ' . $pm['timestamp'] . '
-					AND message_subject = ' . $this->$db->sql_escape($pm['subject']) . '
-					AND message_text = ' . $this->$db->sql_escape($pm['message_text']);
-			$result = $db->sql_query($sql);
-			$row = $db->sql_fetchrow($result);
-			$db->sql_freeresult($result);
+					AND message_time = ' . $pm['timestamp'] . '
+					AND message_subject = "' . $this->db->sql_escape($pm['subject']) . '"
+					AND message_text = "' . $this->db->sql_escape($pm['message']) . '"';
+			$result = $this->db->sql_query($sql);
+			$row = $this->db->sql_fetchrow($result);
+			$this->db->sql_freeresult($result);
 			if ($row) {
 				$sql = 'INSERT INTO ' . PRIVMSGS_TO_TABLE . ' (msg_id, user_id, author_id) 
 						VALUES '. implode(', ', array_map(
-							function ($v, $k) { return '(' . $row['msg_id'] . ',' . $k . ',' . $row['author_id'] . ')'; }, 
-							$pm['address_list']['u'])) . '
+							function ($k) use ($row) { return '(' . $row['msg_id'] . ',' . $k . ',' . $row['author_id'] . ')'; }, 
+							array_keys($pm['address_list']['u']))) . '
 						ON DUPLICATE KEY UPDATE
 							msg_id = VALUES(msg_id),
 							user_id = VALUES(user_id),
 							author_id = VALUES(author_id)';
-				$db->sql_query($sql);
+				$this->db->sql_query($sql);
 			} else {
-				$msg_id = submit_pm('post', $pm['subject'], $pm, false);
+				// let's look for something else by this author with this subject with a timestamp +/- 1d
+				// if we find it, choose the earliest as the root pm id
+				$msg_id = submit_pm('reply', $pm['subject'], $pm, false);
 				$sql = 'UPDATE ' . PRIVMSGS_TABLE . ' 
 						SET message_time = ' . $pm['timestamp'] . '
 						WHERE msg_id = ' . $msg_id;
-				$db->sql_query($sql);
+				$this->db->sql_query($sql);
 			}
 		}
 	}
 
 	private function get_clean_username($un, $users) {
-		$un = isset($users[$un]) ? $users[$un]: $un;
-		return utf8_clean_string($un);
+		$clean = utf8_clean_string($un);
+		return isset($users[$clean]) ? $users[$clean] : $clean;
 	}
 
 	private function parse_xml(&$pms, $xml_str, $users, $mode)
@@ -142,38 +170,48 @@ class import_service
 
 	private function parse_csv(&$pms, $csv_str, $users, $mode)
 	{
-		$qstr = '&quot;';
-		$csv = str_getcsv($csv_str);
+		$received = $mode === 'received';
+		$qstr = '"';
+		$csv = array_map(function ($s) { return explode(",", strip_tags($s)); }, explode("\n", $csv_str));
 		while (count($csv)) {
 			$elem = array_shift($csv);
-
 			$body = '';
 			$recipients = [];
-			$sender = $mode === 'sent' ? utf8_clean_string($elem[1]) : $this->user->data->username_clean;
+			$sender = $received 
+				? $this->get_clean_username(utf8_clean_string($elem[1]), $users) 
+				: $this->user->data['username_clean'];
 			$subject = $elem[0]; 
 
 			$timestamp = strtotime($elem[2]);
 			if (!$timestamp) {
-				return 'Invalid CSV format.';
+				return $this->user->lang('UCP_PM_IMPORT_ERROR_INVALID_TIME', $elem[2]);
 			}
-			$timestamp = $timestamp->getTimestamp();
 
-			$recipients[] = $received ? $this->user->data->username_clean : $this->get_clean_username(ltrim($elem[3], $qstr), $users);
-			for ($i = 4; $i < count($elem); $i++) {
-				if (strpos($elem[$i], $qstr) === 0) {
-					$body .= join(",", array_slice($elem, $i));
-					break;
+			if ($received) {
+				$recipients[] = $this->user->data['username_clean'];
+			} elseif (mb_strpos($elem[3], $qstr) === 0) {
+				$recipients[] = $this->get_clean_username(trim($elem[3], $qstr), $users);
+				for ($i = 4; $i < count($elem); $i++) {
+					$recipients[] = $this->get_clean_username(trim($elem[$i], $qstr), $users);
+					if (mb_strpos($elem[$i], $qstr) !== FALSE) {
+						$body .= join(",", array_filter(array_slice($elem, $i + 1))) . "\n";
+						break;
+					}
 				}
-				$recipients[] = $this->get_clean_username(rtrim($elem[$i], $qstr), $users);
+			} else {
+				$recipients[] = $this->get_clean_username($elem[3], $users);
+				$body .= join(",", array_filter(array_slice($elem, 4))) . "\n";
 			}
-			while(count($csv) && !($this->parse_time($csv[0][2]))) {
+	
+			while(count($csv) && strtotime($csv[0][2]) === FALSE) {
 				$elem = array_filter(array_shift($csv));
-				$body .= $elem ? join(",", $elem) : '\r\n';
+				$body .= count($elem) ? join(",", $elem) : "\n";
 			}
+
 			$body = trim($body, $qstr);
 			$pms[] = array(
 				'sender' => $sender,
-				'recipients' => $recipients,
+				'recipients' => array_unique($recipients),
 				'body' => $body,
 				'subject' => $subject,
 				'timestamp' => $timestamp,

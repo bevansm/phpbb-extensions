@@ -9,3 +9,4 @@ services:
     arguments:
       - '@user'
       - '@dbal.conn'
+      - '@text_formatter.s9e.parser'

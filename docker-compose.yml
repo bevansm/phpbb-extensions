@@ -18,6 +18,7 @@ services:
       - PHPBB_DATABASE_USER=bn_phpbb
       - PHPBB_DATABASE_NAME=bitnami_phpbb
       - ALLOW_EMPTY_PASSWORD=yes
+      - DEBUG_CONTAINER=true
     ports:
       - '80:80'
       - '443:443'
