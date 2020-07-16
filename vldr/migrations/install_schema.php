@@ -16,6 +16,17 @@ class install_schema extends \phpbb\db\migration\migration
 	{
 		return array('\phpbb\db\migration\data\v320\v320');
 	}
+	
+	public function revert_schema() 
+	{
+		return array (
+			'drop_tables'    => array(
+				$this->table_prefix . 'vldr_games',
+				$this->table_prefix . 'vldr_characters',
+				$this->table_prefix . 'vldr_locations',
+			),
+		)
+	}
 
 	public function update_schema()
 	{
