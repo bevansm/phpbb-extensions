@@ -1,0 +1,122 @@
+{% include 'ucp_header.html' %}
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}" {{ S_FORM_ENCTYPE }}>
+  <h2>{{ lang(U_TITLE) }}</h2>
+  <div class="panel">
+    {% if ERROR %}
+    <p class="error">{{ ERROR }}</p>
+    {% endif %}
+    <fieldset class="fields1">
+      <dl>
+        <dt>
+          <label for="import"
+            >{{ lang('UCP_PM_IMPORT_INFO') ~ lang('COLON') }}</label
+          >
+          <br /><span>{{ lang('UCP_PM_IMPORT_USER_EXPLAIN_0')}}</span>
+          <br /><br /><span>{{ lang('UCP_PM_IMPORT_USER_EXPLAIN_1')}}</span>
+          <br /><br /><span>{{ lang(U_EXPLAIN) }}</span>
+        </dt>
+        <dd>
+          <div id="import" class="message-box">
+            <textarea
+              name="import_text"
+              id="import_text"
+              style="height: 18em;"
+              name="message"
+              id="message"
+              rows="15"
+              cols="76"
+              tabindex="4"
+              onselect="storeCaret(this);"
+              onclick="storeCaret(this);"
+              onkeyup="storeCaret(this);"
+              onfocus="initInsertions();"
+              class="inputbox"
+            >
+{{ U_IMPORT }}</textarea
+            >
+          </div>
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <label for="change_users">{{ lang(U_CHANGE) ~ lang('COLON') }}</label>
+          <br /><span>{{ lang('UCP_PM_IMPORT_USER_CHANGE_EXPLAIN_0')}}</span>
+          <br /><br /><span
+            >{{ lang('UCP_PM_IMPORT_USER_CHANGE_EXPLAIN_1')}}</span
+          >
+        </dt>
+        <dd>
+          <div id="change_users" class="message-box">
+            <textarea
+              name="users_text"
+              id="users_text"
+              style="height: 12em;"
+              name="message"
+              id="message"
+              rows="15"
+              cols="76"
+              tabindex="4"
+              onselect="storeCaret(this);"
+              onclick="storeCaret(this);"
+              onkeyup="storeCaret(this);"
+              onfocus="initInsertions();"
+              class="inputbox"
+            >
+{{ U_USERS }}</textarea
+            >
+          </div>
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <label for="upload_type"
+            >{{ lang('UCP_PM_IMPORT_TYPE') }}{L_COLON}</label
+          >
+        </dt>
+        <dd>
+          <label
+            ><input
+              type="radio"
+              class="radio"
+              id="upload_type"
+              name="upload_type"
+              value="csv"
+              checked="checked"
+            />
+            {{ lang('FILE_CSV') }}
+          </label>
+          <label
+            ><input
+              type="radio"
+              class="radio"
+              name="upload_type"
+              value="xml"
+              disabled="true"
+            />
+            {{ lang('FILE_XML') }}</label
+          >
+        </dd>
+      </dl>
+    </fieldset>
+    <fieldset class="submit-buttons">
+      {{ S_HIDDEN_FIELDS }}
+      <input
+        type="submit"
+        name="submit"
+        id="submit"
+        class="button1"
+        value="{{ lang('SUBMIT') }}"
+        tabindex="2"
+      />&nbsp;
+      <input
+        type="reset"
+        name="reset"
+        class="button2"
+        value="{{ lang('RESET') }}"
+      />
+      {{ S_FORM_TOKEN }}
+    </fieldset>
+  </div>
+</form>
+
+{% include 'ucp_footer.html' %}

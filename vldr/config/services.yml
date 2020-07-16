@@ -1,0 +1,12 @@
+services:
+  mebird.pmimport.listener:
+    class: mebird\pmimport\event\main_listener
+    arguments:
+    tags:
+      - { name: event.listener }
+  mebird.pmimport.import_service:
+    class: mebird\pmimport\service\import_service
+    arguments:
+      - '@user'
+      - '@dbal.conn'
+      - '@text_formatter.s9e.parser'
