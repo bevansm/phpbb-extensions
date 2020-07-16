@@ -8,7 +8,7 @@
  *
  */
 
-namespace mebird\pmimport\migrations;
+namespace mebird\vldr\migrations;
 
 class install_schema extends \phpbb\db\migration\migration
 {

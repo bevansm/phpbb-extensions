@@ -8,13 +8,13 @@
  *
  */
 
-namespace mebird\pmimport\migrations;
+namespace mebird\vldr\migrations;
 
 class install_ucp_module extends \phpbb\db\migration\migration
 {
 	public static function depends_on()
 	{
-		return array('\mebird\pmimport\migrations\install_schema');
+		return array('\mebird\vldr\migrations\install_schema');
 	}
 
 	public function update_data()
@@ -23,28 +23,17 @@ class install_ucp_module extends \phpbb\db\migration\migration
 			array('module.add', array(
 				'ucp',
 				0,
-				'UCP_PM_IMPORT'
+				'UCP_VLDR'
 			)),
 
 			array('module.add', array(
 				'ucp',
-				'UCP_PM_IMPORT',
+				'UCP_VLDR',
 				array(
-					'module_basename'   => '\mebird\pmimport\ucp\main_module',
-					'title'	=> 'UCP_PM_IMPORT_SENT',
-					'auth'	=> 'ext_mebird/pmimport && acl_u_pm_import_sent',
-					'modes' => array('sent'),
-				),
-			)),
-
-			array('module.add', array(
-				'ucp',
-				'UCP_PM_IMPORT',
-				array(
-					'module_basename'   => '\mebird\pmimport\ucp\main_module',
-					'title'	=> 'UCP_PM_IMPORT_RECEIVED',
-					'auth'	=> 'ext_mebird/pmimport && acl_u_pm_import_received',
-					'modes' => array('received'),
+					'module_basename'   => '\mebird\vldr\ucp\main_module',
+					'title'	=> '',
+					'auth'	=> 'ext_mebird/vldr && acl_u_vldr',
+					'modes' => array('create', 'manage'),
 				),
 			)),
 		);

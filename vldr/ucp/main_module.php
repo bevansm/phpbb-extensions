@@ -8,7 +8,7 @@
  *
  */
 
-namespace mebird\pmimport\ucp;
+namespace mebird\vldr\ucp;
 
 /**
  * PM Import UCP module.
@@ -36,13 +36,10 @@ class main_module
 
 		$this->user = $user;
 		$this->template = $template;
-		$this->import_service = $phpbb_container->get('mebird.pmimport.import_service');
-
-		$this->tpl_name = 'ucp_pm_import';
-		add_form_key('mebird_pmimport');
+		$this->import_service = $phpbb_container->get('mebird.vldr.import_service');
 
 		switch ($mode) {
-			case 'sent':
+			case 'create':
 				$this->page_title = $this->user->lang('UCP_PM_IMPORT_SENT');
 				$this->template->assign_vars(array(
 					'U_TITLE' 	=> 'UCP_PM_IMPORT_SENT',
@@ -51,7 +48,7 @@ class main_module
 					'S_UCP_ACTION' => $this->u_action
 				));
 			break;
-			case 'received':
+			case 'manage':
 				$this->page_title = $this->user->lang('UCP_PM_IMPORT_RECEIVED');
 				$this->template->assign_vars(array(
 					'U_TITLE' 	=> 'UCP_PM_IMPORT_RECEIVED',

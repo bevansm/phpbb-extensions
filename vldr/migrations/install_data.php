@@ -15,10 +15,10 @@ class install_data extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
-			array('permission.add', array('u_pm_import_sent')), 
-			array('permission.add', array('u_pm_import_received')), 
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_pm_import_sent')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_pm_import_received'))
+			array('permission.add', array('u_vldr')), 
+			array('permission.add', array('u_vldr')), 
+			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_vldr')),
+			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_vldr'))
 		);
 	}
 }
