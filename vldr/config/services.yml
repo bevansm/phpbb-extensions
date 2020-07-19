@@ -4,8 +4,9 @@ services:
     arguments:
     tags:
       - { name: event.listener }
-  mebird.pmimport.import_service:
-    class: mebird\pmimport\service\import_service
+  # TODO: update all of these services w/table names
+  mebird.vldr.import_service:
+    class: mebird\vldr\service\location_service
     arguments:
       - '@user'
       - '@dbal.conn'

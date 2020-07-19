@@ -38,7 +38,6 @@ class install_schema extends \phpbb\db\migration\migration
 						'game_id'	=> array('UINT',  NULL, 'auto_increment'),
 						'game_name' => array('XSTEXT_UNI', ''),
 						'host_id'	=> array('UINT', 0),
-						'host_name'	=> array('VCHAR_UNI', ''),
 					),
 					'PRIMARY_KEY'	=> 'game_id',
 					'KEYS'	=> array(
