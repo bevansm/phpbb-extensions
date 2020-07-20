@@ -170,20 +170,20 @@ class location_service
 
 		// TODO: better strings for the message & translation
 		$pm = array(
-			'message' => join(', ', $entered) . ' enter ' . $loc['loc_name'] . '. ' . join(',', $left) . ' leave.
+			'message' 			=> join(', ', $entered) . ' enter ' . $loc['loc_name'] . '. ' . join(',', $left) . ' leave.
 						
 						' . $loc['loc_text'],
-			'bbcode_bitfield' => $loc['bbcode_bitfield'],
-			'bbcode_uid' => $loc['bbcode_uid'],
-			'enable_bbcode' => 1,
-			'icon_id' => 7,
-			'address_list' => array('u' => array_map(function() { return 'to'; }, array_flip($recipients))),
-			'from_user_ip' => $this->user->ip,
-			'from_user_id' => $this->user->data['user_id'],
-			'enable_sig' => 1,
-			'enable_urls' => 1,
-			'enable_bbcode' => 1,
-			'enable_smilies' => 1,
+			'bbcode_bitfield'	=> $loc['bbcode_bitfield'],
+			'bbcode_uid' 		=> $loc['bbcode_uid'],
+			'enable_bbcode' 	=> 1,
+			'icon_id' 			=> 7,
+			'address_list' 		=> array('u' => array_map(function() { return 'to'; }, array_flip($recipients))),
+			'from_user_ip' 		=> $this->user->ip,
+			'from_user_id' 		=> $this->user->data['user_id'],
+			'enable_sig' 		=> 1,
+			'enable_urls' 		=> 1,
+			'enable_bbcode' 	=> 1,
+			'enable_smilies' 	=> 1,
 			'reply_from_msg_id' => $loc['root_level']
 		);
 		submit_pm('reply', $loc['loc_subject'], $pm);
@@ -203,7 +203,7 @@ class location_service
 						+ " => "
 						+ (SELECT loc_name FROM ' . $this->loc_table . ' WHERE loc_id = ' . $dest . ')
 						+ ")",' . $game_id . ',
-						' . $this->create_room_subject($game_id, 'Enroute') . ',
+						"' . $this->create_room_subject($game_id, 'Enroute') . '",
 						' . $src . ',' . $dest . ')';
 		$this->db->sql_query($sql);
 		$loc_id = $db->sql_nextid();

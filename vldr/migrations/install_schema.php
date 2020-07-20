@@ -24,6 +24,7 @@ class install_schema extends \phpbb\db\migration\migration
 				$this->table_prefix . 'vldr_games',
 				$this->table_prefix . 'vldr_characters',
 				$this->table_prefix . 'vldr_locations',
+				$this->table_prefix . 'vldr_spectators',
 			),
 		)
 	}
