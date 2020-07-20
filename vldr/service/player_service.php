@@ -31,6 +31,9 @@ class player_service
 	{
 		if ($add_to_pms)
 		{
+			$sql = 'INSERT INTO ' . PRIVMSGS_TO_TABLE . ' (msg_id, user_id, author_id) 
+					SELECT m.msg_id, ' . $sub_user_id . ' m.author_id 
+					FROM ' . PRIVMSGS_TO_TABLE . 
 			// TODO:
 		}
 

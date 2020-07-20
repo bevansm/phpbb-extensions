@@ -37,6 +37,7 @@ class install_schema extends \phpbb\db\migration\migration
 					'COLUMNS'	=> array(
 						'game_id'	=> array('UINT',  NULL, 'auto_increment'),
 						'game_name' => array('XSTEXT_UNI', ''),
+						'game_code'	=> array('XSTEXT_UNI', ''),
 						'host_id'	=> array('UINT', 0),
 					),
 					'PRIMARY_KEY'	=> 'game_id',
@@ -61,17 +62,32 @@ class install_schema extends \phpbb\db\migration\migration
 				),
 				$this->table_prefix . 'vldr_locations'	=> array(
 					'COLUMNS'	=> array(
-						'loc_id'		=> array('UINT',  NULL, 'auto_increment'),
-						'loc_name'		=> array('VCHAR_UNI', ''),
-						'root_level'	=> array('UINT', NULL),
-						'game_id'		=> array('UINT', 0),
-						'src_id'		=> array('UINT', NULL),
-						'dest_id'		=> array('UINT', NULL),
+						'loc_id'			=> array('UINT',  NULL, 'auto_increment'),
+						'loc_name'			=> array('VCHAR_UNI', ''),
+						'root_level'		=> array('UINT', NULL),
+						'game_id'			=> array('UINT', 0),
+						'src_id'			=> array('UINT', NULL),
+						'dest_id'			=> array('UINT', NULL),
+						'loc_subject'		=> array('XSTEXT_UNI', NULL),
+						'bbcode_bitfield'	=> array('VCHAR:255', ''),
+						'bbcode_uid'		=> array('VCHAR:8', ''),
+						'loc_text'			=> array('MTEXT_UNI', ''),
+
 					),
 					'PRIMARY_KEY'	=> 'loc_id',
 					'KEYS'	=> array(
 						'game_id'		=> array('INDEX', 'game_id'),
 						'unq_enroute'	=> array('UNIQUE', array('src_id', 'dest_id')),
+					),
+				),
+				$this->table_prefix . 'vldr_spectators'	=> array(
+					'COLUMNS'	=> array(
+						'game_id'		=> array('UINT', 0),
+						'user_id'		=> array('UINT', NULL)
+					),
+					'PRIMARY_KEY'	=> 'user_id',
+					'KEYS'	=> array(
+						'game_id'		=> array('INDEX', 'game_id'),
 					),
 				),
 			),

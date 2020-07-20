@@ -15,25 +15,59 @@ class location_service
 {
 	protected $user;
 	protected $db;
+	protected $parser;
 	protected $loc_table;
 	protected $char_table;
+	protected $game_table;
 
-	public function __construct(user $user, db $db, string $loc_table, string $char_table)
+	public function __construct(user $user, db $db, \phpbb\textformatter\s9e\parser $parser, string $loc_table, string $char_table, string $game_table)
 	{
 		$this->user = $user;
 		$this->db = $db;
 		$this->loc_table = $loc_table;
 		$this->char_table = $char_table;
+		$this->game_table = $game_table;
+
+		$parser->enable_bbcodes();
+		$parser->enable_magic_url();
+		$parser->enable_smilies();
+		$this->parser = $parser;
 	}
 
-	public function create_room(int $game_id, string $room_name)
+	public function create_room(int $game_id, string $room_name, string $loc_text)
 	{
-		// TODO: implement this
+		$sql = 'INSERT INTO ' . $this->loc_table . ' ' .
+				$db->sql_build_array('INSERT', array(
+					'game_id' 		=> $game_id,
+					'loc_name' 		=> $room_name,
+					'loc_text' 		=> $this->parser->parse($loc_text), 
+					'loc_subject' 	=> $this->create_room_subject($game_id, $room_name)
+				));
+		$result = $db->sql_query($sql);
+		$loc_id = $db->sql_nextid();
+
+		$sql = 'UPDATE ' . $this->loc_table . '
+				SET dest_id = ' . $loc_id . '
+					src_id  = ' . $loc_id . '
+				WHERE loc_id = ' $loc_id;
+		$db->sql_query($sql);
+
+		$this->create_root_pm($loc_id);
 	}
 
-	public function delete_room(int $game_id, array $room_id)
+	public function delete_room(int $loc_id)
 	{
-		// TODO: implement this
+		$sql = 'UPDATE ' . $this->char_table . ' c,' . $this->loc_table . ' l 
+				SET u.loc_id = NULL 
+				WHERE c.loc_id = ' . $loc_id . '
+					OR (c.loc_id = l.loc_id 
+						AND (l.src_id = ' . $loc_id .' OR l.dest_id = '. $loc_id .'))';
+		$db->sql_query($sql);
+		$sql = 'DELETE FROM ' . $this->loc_table . ' 
+				WHERE loc_id = ' . $loc_id . '
+					OR src_id = ' . $loc_id . '
+					OR dest_id = ' . $loc_id;
+		$db->sql_query($sql);
 	}
 
 	public function move_characters(int $game_id, $movements)
@@ -58,6 +92,20 @@ class location_service
 			$this->enter_room($entered);
 			$this->send_movement_pm($loc_id, $entered, $left);
 		}
+	}
+
+	private function get_game_code($game_id)
+	{
+		$sql = 'SELECT game_code FROM ' . $this->game_table . ' WHERE game_id ' = $game_id;
+		$result = $this->db->sql_query($sql);
+		$game = $this->db->fetch_row($sql);
+		$db->sql_freeresult($result);
+		return $game['game_code'];
+	}
+
+	private function create_room_subject($game_id, $loc_name)
+	{
+		return 'VLDR: ' . $this->get_game_code($game_id) . ' - ' . $loc_name;
 	}
 
 	private function leave_room($loc_id, $character_ids)
@@ -105,12 +153,13 @@ class location_service
 		$left = $this->get_character_names($left);
 		$recipients = $this->get_users_in_room($loc_id);
 
-		$sql = 'SELECT loc_name, root_level FROM ' . $this->loc_table . ' WHERE loc_id = ' . $loc_id;
+		$sql = 'SELECT loc_name, root_level, loc_subject, loc_text, bbcode_bitfield, bbcode_uid
+				FROM ' . $this->loc_table . ' WHERE loc_id = ' . $loc_id;
 		$result = $this->db->sql_query($sql);
-		$row = $this->db->sql_fetchrow($result);
+		$loc = $this->db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
 		$root_level = $row['root_level'];
-		$subject = $row['loc_name'];
+
 
 		global $phpbb_root_path, $phpEx;
 
@@ -121,9 +170,11 @@ class location_service
 
 		// TODO: better strings for the message & translation
 		$pm = array(
-			'message' => join(', ', $entered) . ' enter. ' . join(',', $left) . ' leave.',
-			'bbcode_bitfield' => '',
-			'bbcode_uid' => '',
+			'message' => join(', ', $entered) . ' enter ' . $loc['loc_name'] . '. ' . join(',', $left) . ' leave.
+						
+						' . $loc['loc_text'],
+			'bbcode_bitfield' => $loc['bbcode_bitfield'],
+			'bbcode_uid' => $loc['bbcode_uid'],
 			'enable_bbcode' => 1,
 			'icon_id' => 7,
 			'address_list' => array('u' => array_map(function() { return 'to'; }, array_flip($recipients))),
@@ -133,9 +184,9 @@ class location_service
 			'enable_urls' => 1,
 			'enable_bbcode' => 1,
 			'enable_smilies' => 1,
-			'reply_from_msg_id' => $root_level
+			'reply_from_msg_id' => $loc['root_level']
 		);
-		submit_pm('reply', $subject, $pm);
+		submit_pm('reply', $loc['loc_subject'], $pm);
 	}
 
 	private function get_enroute($src, $dest) {
@@ -145,15 +196,18 @@ class location_service
 	}
 
 	private function create_enroute(int $game_id, int $src, int $dest) {
-		// TODO: use usr translation strings in the "ENROUTE" area
-		$sql = 'INSERT INTO ' . $this->loc_table . ' (loc_name, game_id, src_id, dest_id) 
+		// TODO: Use translation for Enroute
+		$sql = 'INSERT INTO ' . $this->loc_table . ' (loc_name, game_id, loc_subject, src_id, dest_id) 
 				VALUES ( "Enroute ("
 						+ (SELECT loc_name FROM ' . $this->loc_table . ' WHERE loc_id = ' . $src . ')
 						+ " => "
 						+ (SELECT loc_name FROM ' . $this->loc_table . ' WHERE loc_id = ' . $dest . ')
-						+ ")", ' . $game_id . ', ' . $src . ', ' . $dest . ')';
+						+ ")",' . $game_id . ',
+						' . $this->create_room_subject($game_id, 'Enroute') . ',
+						' . $src . ',' . $dest . ')';
 		$this->db->sql_query($sql);
 		$loc_id = $db->sql_nextid();
+		$this->db->sql_freeresult($result);
 		$this->create_root_pm($loc_id);
 		return $loc_id;
 	}
@@ -166,11 +220,12 @@ class location_service
 			include($phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx);
 		}
 
-		$sql = 'SELECT loc_name FROM ' . $this->loc_table . ' WHERE l.loc_id = ' . $loc_id;
+		$sql = 'SELECT loc_subject FROM ' . $this->loc_table . ' WHERE l.loc_id = ' . $loc_id;
 		$result = $this->db->sql_query($sql);
-		$subject = $this->db->sql_fetchrow($result)['loc_name'];
+		$loc = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
 
+		// TODO: translate this thing too
 		$pm = array(
 			'message' => 'Zero stumbles into the room...',
 			'bbcode_bitfield' => '',
@@ -185,7 +240,7 @@ class location_service
 			'enable_bbcode' => 1,
 			'enable_smilies' => 1
 		);
-		$msg_id = submit_pm('post', $subject, $pm, false);
+		$msg_id = submit_pm('post', $loc['loc_subject'], $pm, false);
 
 		$sql = 'UPDATE ' . $this->loc_table . ' SET root_level = ' . $msg_id . ' WHERE loc_id = ' . $loc_id;
 		$this->db->sql_query($sql);
