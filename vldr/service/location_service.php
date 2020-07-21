@@ -20,7 +20,7 @@ class location_service
 	protected $char_table;
 	protected $game_table;
 
-	public function __construct(user $user, db $db, \phpbb\textformatter\s9e\parser $parser, string $loc_table, string $char_table, string $game_table)
+	public function __construct(user $user, db $db, \phpbb\textformatter\s9e\parser $parser, string $game_table, string $loc_table, string $char_table)
 	{
 		$this->user = $user;
 		$this->db = $db;
@@ -140,11 +140,7 @@ class location_service
 		$result = $this->db->sql_query($sql);
 		$rows = $this->db->sql_fetchrowset($result);
 		$db->sql_freeresult($result);
-
-		// The host & users are all in the room
-		$recipients = array_column($rows, 'user_id');
-		array_push($recipients, $this->user->data['user_id']);
-		return $recipients;
+		return array_column($rows, 'user_id');
 	}
 
 	private function send_movement_pm($loc_id, $entered, $left)

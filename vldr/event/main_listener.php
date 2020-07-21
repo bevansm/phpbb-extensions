@@ -20,11 +20,29 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class main_listener implements EventSubscriberInterface
 {
+
+	/* @var \phpbb\db\driver\driver_interface */
+	protected $db;
+	protected $spec_table;
+	protected $loc_table;
+
+	/**
+	 * Constructor
+	 * @param \phpbb\db\driver\driver_interface $db db
+	 */
+	public function __construct(\phpbb\db\driver\driver_interface $db, $loc_table, $spec_table)
+	{
+		$this->spec_table = $spec_table;
+		$this->loc_table = $loc_table;
+		$this->db = $db;
+	}
+
 	public static function getSubscribedEvents()
 	{
 		return array(
-			'core.user_setup'							=> 'load_language_on_setup',
-			'core.permissions'							=> 'add_permissions',
+			'core.user_setup'		=> 'load_language_on_setup',
+			'core.permissions'		=> 'add_permissions',
+			'core.submit_pm_before'	=> 'submit_pm_before',
 		);
 	}
 
@@ -37,7 +55,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
-			'ext_name' => 'mebird/pmimport',
+			'ext_name' => 'mebird/vldr',
 			'lang_set' => 'common',
 		);
 		$event['lang_set_ext'] = $lang_set_ext;
@@ -47,12 +65,41 @@ class main_listener implements EventSubscriberInterface
 	public function add_permissions($event)
 	{
 		$permissions = $event['permissions'];
-		$permissions['u_pm_import_sent'] = array(
+		$permissions['u_vldr'] = array(
 			'lang' => 'ACL_U_PM_IMPORT_SENT', 'cat' => 'pm'
-		);
-		$permissions['u_pm_import_received'] = array(
-			'lang' => 'ACL_U_PM_IMPORT_RECEIVED', 'cat' => 'pm'
 		);
 		$event['permissions'] = $permissions;
 	}
+
+	/**
+	* Get all parts of the PM that are to be submited to the DB.
+	*
+	* @event core.submit_pm_before
+	* @var	string	mode	PM Post mode - post|reply|quote|quotepost|forward|edit
+	* @var	string	subject	Subject of the private message
+	* @var	array	data	The whole row data of the PM.
+	* @since 3.1.0-b3
+	*/
+	public function submit_pm_before($mode, $subject, $data_ary)
+	{
+		if ($data_ary['reply_from_root_level'])
+		{
+			$sql = 'SELECT DISTINCT s.user_id from ' . $this->loc_table . ' l 
+					JOIN ' . $this->spec_table . ' s
+						ON l.game_id = s.game_id
+					WHERE l.root_level = ' . $data_ary['reply_from_root_level'];
+			$result = $this->db->sql_query($sql);
+			$rows = $this->db->sql_fetchrowset($result);
+			$db->sql_freeresult($result);
+			$to = array_keys($data_ary['address_list']['u']);
+			for ($ids as $id)
+			{
+				if (!in_array($id, $to)) {
+					$data_ary['address_list']['u'][$id] = 'bcc';
+				}
+			}
+		}
+		return $data_ary;
+	}
+
 }

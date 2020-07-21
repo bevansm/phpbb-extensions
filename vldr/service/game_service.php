@@ -21,7 +21,7 @@ class game_service
 	protected $game_table;
 	protected $spec_table;
 
-	public function __construct(user $user, db $db, string $loc_table, string $char_table, string $game_table, string $spec_table)
+	public function __construct(user $user, db $db, string $game_table, string $loc_table, string $char_table, string $spec_table)
 	{
 		$this->user = $user;
 		$this->db = $db;
@@ -55,8 +55,8 @@ class game_service
 	{
 		$sql = 'DELETE FROM ' . $this->char_table . ' WHERE game_id = ' . $game_id . ';
 				DELETE FROM ' . $this->game_table . ' WHERE game_id = ' . $game_id . ';
-				DELETE FROM ' . $this->loc_table . '  WHERE game_id = ' . $game_id . ';
-				DELETE FROM ' . $this->spec_table .'  WHERE game_id = ' . $game_id . ';'; 
+				DELETE FROM ' . $this->loc_table . 	' WHERE game_id = ' . $game_id . ';
+				DELETE FROM ' . $this->spec_table .	' WHERE game_id = ' . $game_id . ';'; 
 		$this->db->sql_query($sql);
 	}
 

@@ -1,0 +1,5 @@
+parameters:
+  tables.vldr_games: '%core.table_prefix%vldr_games'
+  tables.vldr_chars: '%core.table_prefix%vldr_characters'
+  tables.vldr_locs: '%core.table_prefix%vldr_locations'
+  tables.vldr_specs: '%core.table_prefix%vldr_spectators'

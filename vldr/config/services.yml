@@ -1,13 +1,34 @@
 services:
-  mebird.pmimport.listener:
-    class: mebird\pmimport\event\main_listener
+  mebird.vldr.listener:
+    class: mebird\vldr\event\main_listener
     arguments:
+      - '@dbal.conn'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_specs%'
     tags:
       - { name: event.listener }
-  # TODO: update all of these services w/table names
-  mebird.vldr.import_service:
+  mebird.vldr.location_service:
     class: mebird\vldr\service\location_service
     arguments:
       - '@user'
       - '@dbal.conn'
       - '@text_formatter.s9e.parser'
+      - '%tables.vldr_games%'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_chars%'
+  mebird.vldr.game_service:
+    class: mebird\vldr\service\game_service
+    arguments:
+      - '@user'
+      - '@dbal.conn'
+      - '%tables.vldr_games%'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_chars%'
+      - '%tables.vldr_specs%'
+  mebird.vldr.player_service:
+    class: mebird\vldr\service\player_service
+    arguments:
+      - '@user'
+      - '@dbal.conn'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_chars%'

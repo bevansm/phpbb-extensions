@@ -16,9 +16,7 @@ class install_data extends \phpbb\db\migration\migration
 	{
 		return array(
 			array('permission.add', array('u_vldr')), 
-			array('permission.add', array('u_vldr')), 
 			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_vldr')),
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_vldr'))
 		);
 	}
 }

@@ -50,14 +50,22 @@ class player_service
 		$this->db->sql_query($sql);
 	}
 
-	public function create_character(int $game_id, int $user_id, int $character_name)
+	public function create_character(int $game_id, int $user_id, string $character_name)
 	{
-		// TODO:
+		$sql = 'INSERT INTO ' . $this->char_table . ' ' .
+				$db->sql_build_array('INSERT', array(
+					'game_id' 			=> $game_id,
+					'user_id' 			=> $user_id,
+					'character_name' 	=> $character_name, 
+				));
+		$this->db->sql_query($sql);
 	}
 
-	public function delete_character(int $game_id, int $character_id)
+	public function delete_character(int $character_id)
 	{
-		// TODO:
+		$sql = 'DELETE FROM ' . $this->char_table . ' 
+				WHERE character_id = ' . $character_id;
+		$this->db->sql_query($sql);
 	}
 
 
