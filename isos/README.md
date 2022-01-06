@@ -2,7 +2,7 @@
 
 ## Installation
 
-Copy the extension to phpBB/ext/mebird/isos
+Copy the extension to phpBB/ext/bevansm/isos
 
 Go to "ACP" > "Customise" > "Extensions" and enable the "isos" extension.
 

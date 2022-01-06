@@ -1,14 +1,14 @@
 services:
-  mebird.vldr.listener:
-    class: mebird\vldr\event\main_listener
+  bevansm.vldr.listener:
+    class: bevansm\vldr\event\main_listener
     arguments:
       - '@dbal.conn'
       - '%tables.vldr_locs%'
       - '%tables.vldr_specs%'
     tags:
       - { name: event.listener }
-  mebird.vldr.location_service:
-    class: mebird\vldr\service\location_service
+  bevansm.vldr.location_service:
+    class: bevansm\vldr\service\location_service
     arguments:
       - '@user'
       - '@dbal.conn'
@@ -16,8 +16,8 @@ services:
       - '%tables.vldr_games%'
       - '%tables.vldr_locs%'
       - '%tables.vldr_chars%'
-  mebird.vldr.game_service:
-    class: mebird\vldr\service\game_service
+  bevansm.vldr.game_service:
+    class: bevansm\vldr\service\game_service
     arguments:
       - '@user'
       - '@dbal.conn'
@@ -25,8 +25,8 @@ services:
       - '%tables.vldr_locs%'
       - '%tables.vldr_chars%'
       - '%tables.vldr_specs%'
-  mebird.vldr.player_service:
-    class: mebird\vldr\service\player_service
+  bevansm.vldr.player_service:
+    class: bevansm\vldr\service\player_service
     arguments:
       - '@user'
       - '@dbal.conn'

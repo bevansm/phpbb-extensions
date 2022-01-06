@@ -3,12 +3,12 @@
  *
  * vldr. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, mebird, https://github.com/mebird
+ * @copyright (c) 2020, bevansm, https://github.com/bevansm
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
 
-namespace mebird\vldr\service;
+namespace bevansm\vldr\service;
 use phpbb\db\driver\factory as db;
 
 class location_service
@@ -37,20 +37,20 @@ class location_service
 	public function create_room(int $game_id, string $room_name, string $loc_text)
 	{
 		$sql = 'INSERT INTO ' . $this->loc_table . ' ' .
-				$db->sql_build_array('INSERT', array(
+		$this->db->sql_build_array('INSERT', array(
 					'game_id' 		=> $game_id,
 					'loc_name' 		=> $room_name,
 					'loc_text' 		=> $this->parser->parse($loc_text), 
 					'loc_subject' 	=> $this->create_room_subject($game_id, $room_name)
 				));
-		$result = $db->sql_query($sql);
-		$loc_id = $db->sql_nextid();
+		$result = $this->db->sql_query($sql);
+		$loc_id = $this->db->sql_nextid();
 
 		$sql = 'UPDATE ' . $this->loc_table . '
 				SET dest_id = ' . $loc_id . '
 					src_id  = ' . $loc_id . '
-				WHERE loc_id = ' $loc_id;
-		$db->sql_query($sql);
+				WHERE loc_id = ' . $loc_id;
+				$this->db->sql_query($sql);
 
 		$this->create_root_pm($loc_id);
 	}
@@ -62,12 +62,12 @@ class location_service
 				WHERE c.loc_id = ' . $loc_id . '
 					OR (c.loc_id = l.loc_id 
 						AND (l.src_id = ' . $loc_id .' OR l.dest_id = '. $loc_id .'))';
-		$db->sql_query($sql);
+						$this->db->sql_query($sql);
 		$sql = 'DELETE FROM ' . $this->loc_table . ' 
 				WHERE loc_id = ' . $loc_id . '
 					OR src_id = ' . $loc_id . '
 					OR dest_id = ' . $loc_id;
-		$db->sql_query($sql);
+					$this->db->sql_query($sql);
 	}
 
 	public function move_characters(int $game_id, $movements)
@@ -85,7 +85,6 @@ class location_service
 		}
 
 		foreach ($by_location as $loc_id => $types) {
-			// TODO: check syntax
 			$left = $types['left'] || [];
 			$entered = $types['enter'] || [];
 			$this->leave_room($left);
@@ -96,10 +95,10 @@ class location_service
 
 	private function get_game_code($game_id)
 	{
-		$sql = 'SELECT game_code FROM ' . $this->game_table . ' WHERE game_id ' = $game_id;
+		$sql = 'SELECT game_code FROM ' . $this->game_table . ' WHERE game_id  = ' . $game_id;
 		$result = $this->db->sql_query($sql);
 		$game = $this->db->fetch_row($sql);
-		$db->sql_freeresult($result);
+		$this->db->sql_freeresult($result);
 		return $game['game_code'];
 	}
 
@@ -111,35 +110,34 @@ class location_service
 	private function leave_room($loc_id, $character_ids)
 	{
 		$sql = 'UPDATE ' . $this->char_table . ' SET loc_id = NULL 
-				WHERE loc_id = ' . $loc_id ' 
-					AND ' . $db->sql_in_set('character_id', $character_ids);
+				WHERE loc_id = ' . $loc_id . 'AND' . $this->db->sql_in_set('character_id', $character_ids);
 		$this->db->sql_query($sql);
 	}
 
 	private function enter_room($loc_id, $character_ids)
 	{
-		$sql = 'UPDATE ' . $this->char_table . ' SET loc_id = ' . $loc_id ' 
-				WHERE ' . $db->sql_in_set('character_id', $character_ids);
+		$sql = 'UPDATE ' . $this->char_table . ' SET loc_id = ' . $loc_id . ' 
+				WHERE ' . $this->db->sql_in_set('character_id', $character_ids);
 		$this->db->sql_query($sql);
 	}
 
-	private function get_character_names($character_ids) -> array
+	private function get_character_names($character_ids)
 	{
 		$sql = 'SELECT character_name FROM ' . $this->char_table . ' 
 				WHERE ' . $this->db->sql_in_set('character_id', $character_ids);
 		$result = $this->db->sql_query($sql);
 		$rows = $this->db->sql_fetchrowset($result);
-		$db->sql_freeresult($result);
+		$this->db->sql_freeresult($result);
 		return array_column($rows, 'character_name');
 	}
 
-	private function get_users_in_room($loc_id) -> array 
+	private function get_users_in_room($loc_id)
 	{
 		$sql = 'SELECT user_id FROM ' . $this->char_table . '
 				WHERE loc_id = ' . $loc_id;
 		$result = $this->db->sql_query($sql);
 		$rows = $this->db->sql_fetchrowset($result);
-		$db->sql_freeresult($result);
+		$this->db->sql_freeresult($result);
 		return array_column($rows, 'user_id');
 	}
 
@@ -153,7 +151,7 @@ class location_service
 				FROM ' . $this->loc_table . ' WHERE loc_id = ' . $loc_id;
 		$result = $this->db->sql_query($sql);
 		$loc = $this->db->sql_fetchrow($result);
-		$db->sql_freeresult($result);
+		$this->db->sql_freeresult($result);
 		$root_level = $row['root_level'];
 
 
@@ -202,7 +200,7 @@ class location_service
 						"' . $this->create_room_subject($game_id, 'Enroute') . '",
 						' . $src . ',' . $dest . ')';
 		$this->db->sql_query($sql);
-		$loc_id = $db->sql_nextid();
+		$loc_id = $this->db->sql_nextid();
 		$this->db->sql_freeresult($result);
 		$this->create_root_pm($loc_id);
 		return $loc_id;

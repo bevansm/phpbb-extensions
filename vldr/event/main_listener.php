@@ -1,14 +1,14 @@
 <?php
 /**
  *
- * PM Import. An extension for the phpBB Forum Software package.
+ * vldr. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, mebird, https://github.com/mebird
+ * @copyright (c) 2020, bevansm, https://github.com/bevansm
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
 
-namespace mebird\pmimport\event;
+namespace bevansm\vldr\event;
 
 /**
  * @ignore
@@ -41,7 +41,6 @@ class main_listener implements EventSubscriberInterface
 	{
 		return array(
 			'core.user_setup'		=> 'load_language_on_setup',
-			'core.permissions'		=> 'add_permissions',
 			'core.submit_pm_before'	=> 'submit_pm_before',
 		);
 	}
@@ -55,20 +54,10 @@ class main_listener implements EventSubscriberInterface
 	{
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
-			'ext_name' => 'mebird/vldr',
+			'ext_name' => 'bevansm/vldr',
 			'lang_set' => 'common',
 		);
 		$event['lang_set_ext'] = $lang_set_ext;
-	}
-
-	/** @param \phpbb\event\data	$event	Event object */
-	public function add_permissions($event)
-	{
-		$permissions = $event['permissions'];
-		$permissions['u_vldr'] = array(
-			'lang' => 'ACL_U_PM_IMPORT_SENT', 'cat' => 'pm'
-		);
-		$event['permissions'] = $permissions;
 	}
 
 	/**
@@ -90,9 +79,9 @@ class main_listener implements EventSubscriberInterface
 					WHERE l.root_level = ' . $data_ary['reply_from_root_level'];
 			$result = $this->db->sql_query($sql);
 			$rows = $this->db->sql_fetchrowset($result);
-			$db->sql_freeresult($result);
+			$this->db->sql_freeresult($result);
 			$to = array_keys($data_ary['address_list']['u']);
-			for ($ids as $id)
+			foreach ($ids as $id)
 			{
 				if (!in_array($id, $to)) {
 					$data_ary['address_list']['u'][$id] = 'bcc';

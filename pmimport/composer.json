@@ -1,5 +1,5 @@
 {
-  "name": "mebird/pmimport",
+  "name": "bevansm/pmimport",
   "type": "phpbb-extension",
   "description": "Allows users to import private messages.",
   "homepage": "https://vldrhub.com/index.php",
@@ -8,9 +8,9 @@
   "license": "GPL-2.0-only",
   "authors": [
     {
-      "name": "mebird",
+      "name": "bevansm",
       "email": "mbe_pro@outlook.com",
-      "homepage": "https://github.com/mebird",
+      "homepage": "https://github.com/bevansm",
       "role": "developer"
     }
   ],

@@ -1,6 +1,6 @@
 services:
-  mebird.isos.listener:
-    class: mebird\isos\event\main_listener
+  bevansm.isos.listener:
+    class: bevansm\isos\event\main_listener
     arguments:
       - '@language'
       - '@controller.helper'
