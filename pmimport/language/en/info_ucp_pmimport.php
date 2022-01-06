@@ -3,7 +3,7 @@
  *
  * PM Import. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, mebird, https://github.com/mebird
+ * @copyright (c) 2020, bevansm, https://github.com/bevansm
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */

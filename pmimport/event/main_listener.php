@@ -3,12 +3,12 @@
  *
  * PM Import. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, mebird, https://github.com/mebird
+ * @copyright (c) 2020, bevansm, https://github.com/bevansm
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
 
-namespace mebird\pmimport\event;
+namespace bevansm\pmimport\event;
 
 /**
  * @ignore
@@ -37,7 +37,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
-			'ext_name' => 'mebird/pmimport',
+			'ext_name' => 'bevansm/pmimport',
 			'lang_set' => 'common',
 		);
 		$event['lang_set_ext'] = $lang_set_ext;

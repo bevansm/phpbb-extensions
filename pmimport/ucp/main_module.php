@@ -3,12 +3,12 @@
  *
  * PM Import. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, mebird, https://github.com/mebird
+ * @copyright (c) 2020, bevansm, https://github.com/bevansm
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
 
-namespace mebird\pmimport\ucp;
+namespace bevansm\pmimport\ucp;
 
 /**
  * PM Import UCP module.
@@ -36,10 +36,10 @@ class main_module
 
 		$this->user = $user;
 		$this->template = $template;
-		$this->import_service = $phpbb_container->get('mebird.pmimport.import_service');
+		$this->import_service = $phpbb_container->get('bevansm.pmimport.import_service');
 
 		$this->tpl_name = 'ucp_pm_import';
-		add_form_key('mebird_pmimport');
+		add_form_key('bevansm_pmimport');
 
 		switch ($mode) {
 			case 'sent':
@@ -66,7 +66,7 @@ class main_module
 		}
 
 		if ($request->is_set_post('submit')) {
-			if (!check_form_key('mebird_pmimport')) {
+			if (!check_form_key('bevansm_pmimport')) {
 				trigger_error('FORM_INVALID', E_USER_WARNING);
 			}
 			$import = htmlspecialchars_decode($request->variable('import_text', '', true));

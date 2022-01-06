@@ -2,7 +2,7 @@
 
 ## Installation
 
-Copy the extension to phpBB/ext/mebird/pmimport
+Copy the extension to phpBB/ext/bevansm/pmimport
 
 Go to "ACP" > "Customise" > "Extensions" and enable the "PM Import" extension.
 

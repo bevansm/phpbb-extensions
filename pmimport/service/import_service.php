@@ -3,12 +3,12 @@
  *
  * PM Import. An extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2020, mebird, https://github.com/mebird
+ * @copyright (c) 2020, bevansm, https://github.com/bevansm
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
 
-namespace mebird\pmimport\service;
+namespace bevansm\pmimport\service;
 use phpbb\db\driver\factory as db;
 
 /**
@@ -66,7 +66,6 @@ class import_service
 
 	public function import(string $str, string $type, string $str_users, string $mode)
 	{
-		global $phpbb_root_path, $phpEx;
 
 		$users = [];
 		$err = $this->parse_users($users, $str_users);
@@ -82,79 +81,11 @@ class import_service
 			return $err;
 		}
 
-		if (!function_exists('user_get_id_name'))
-		{
-			include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-		}
-		if (!function_exists('submit_pm'))
-		{
-			include($phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx);
+		$err = $this->send_pms($pms);
+		if ($err) {
+			return $err;
 		}
 
-		foreach ($pms as &$pm) {
-			$to = array();
-			$err = user_get_id_name($to, $pm['recipients']);
-			var_dump($pm['recipients']);
-			var_dump($to);
-			print_r("\r\n<br/>");
-			if ($err || count($to) != count($pm['recipients'])) {
-				return $this->user->lang('UCP_PM_IMPORT_ERROR_USERS', implode(', ', $pm['recipients']));
-			}
-
-			$from = array();
-			$sender = [$pm['sender']];
-			$err = user_get_id_name($from, $sender);
-			if ($err) {
-				return  $this->user->lang('UCP_PM_IMPORT_ERROR_USERS', $pm['sender']);
-			}
-
-			$pm = array_merge($pm, array(
-				'message' => $this->parser->parse($pm['body']),
-				'bbcode_bitfield' => '',
-				'bbcode_uid' => '',
-				'enable_bbcode' => 1,
-				'icon_id' => 7,
-				'address_list' => array('u' => array_map(function() { return 'to'; }, array_flip($to))),
-				'from_user_ip' => $this->user->ip,
-				'from_user_id' => $from[0],
-				'enable_sig' => 1,
-				'enable_urls' => 1,
-				'enable_bbcode' => 1,
-				'enable_smilies' => 1
-			));
-		}
-
-		// if we can already find this pm, just add recipients. else, send it.
-		foreach ($pms as $pm) {
-			$sql = 'SELECT msg_id, author_id
-					FROM ' . PRIVMSGS_TABLE. '
-					WHERE author_id = ' . $pm['from_user_id'] . '
-					AND message_time = ' . $pm['timestamp'] . '
-					AND message_subject = "' . $this->db->sql_escape($pm['subject']) . '"
-					AND message_text = "' . $this->db->sql_escape($pm['message']) . '"';
-			$result = $this->db->sql_query($sql);
-			$row = $this->db->sql_fetchrow($result);
-			$this->db->sql_freeresult($result);
-			if ($row) {
-				$sql = 'INSERT INTO ' . PRIVMSGS_TO_TABLE . ' (msg_id, user_id, author_id) 
-						VALUES '. implode(', ', array_map(
-							function ($k) use ($row) { return '(' . $row['msg_id'] . ',' . $k . ',' . $row['author_id'] . ')'; }, 
-							array_keys($pm['address_list']['u']))) . '
-						ON DUPLICATE KEY UPDATE
-							msg_id = VALUES(msg_id),
-							user_id = VALUES(user_id),
-							author_id = VALUES(author_id)';
-				$this->db->sql_query($sql);
-			} else {
-				// let's look for something else by this author with this subject with a timestamp +/- 1d
-				// if we find it, choose the earliest as the root pm id
-				$msg_id = submit_pm('reply', $pm['subject'], $pm, false);
-				$sql = 'UPDATE ' . PRIVMSGS_TABLE . ' 
-						SET message_time = ' . $pm['timestamp'] . '
-						WHERE msg_id = ' . $msg_id;
-				$this->db->sql_query($sql);
-			}
-		}
 	}
 
 	private function get_clean_username($un, $users) {
@@ -208,15 +139,131 @@ class import_service
 				$body .= count($elem) ? join(",", $elem) : "\n";
 			}
 
-			$body = trim($body, $qstr);
 			$pms[] = array(
 				'sender' => $sender,
 				'recipients' => array_unique($recipients),
-				'body' => $body,
+				'body' => trim($body, $qstr),
 				'subject' => $subject,
 				'timestamp' => $timestamp,
 			);
 		}
 		return FALSE;
+	}
+
+	private function send_pms($pms) {
+		global $phpbb_root_path, $phpEx;
+
+		if (!function_exists('user_get_id_name'))
+		{
+			include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+		}
+		if (!function_exists('submit_pm'))
+		{
+			include($phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx);
+		}
+
+		foreach ($pms as &$pm) {
+			$to = array();
+			$err = user_get_id_name($to, $pm['recipients']);
+			if ($err || count($to) != count($pm['recipients'])) {
+				return $this->user->lang('UCP_PM_IMPORT_ERROR_USERS', implode(', ', $pm['recipients']));
+			}
+
+			$from = array();
+			$sender = [$pm['sender']];
+			$err = user_get_id_name($from, $sender);
+			if ($err) {
+				return  $this->user->lang('UCP_PM_IMPORT_ERROR_USERS', $pm['sender']);
+			}
+
+			$pm = array_merge($pm, array(
+				'message' => $this->parser->parse($pm['body']),
+				'bbcode_bitfield' => '',
+				'bbcode_uid' => '',
+				'enable_bbcode' => 1,
+				'icon_id' => 7,
+				'address_list' => array('u' => array_map(function() { return 'to'; }, array_flip($to))),
+				'from_user_ip' => $this->user->ip,
+				'from_user_id' => $from[0],
+				'enable_sig' => 1,
+				'enable_urls' => 1,
+				'enable_bbcode' => 1,
+				'enable_smilies' => 1
+			));
+		}
+
+		// if we can already find this pm, just add recipients. else, send it.
+		foreach ($pms as $pm) {
+			$sql = 'SELECT msg_id, author_id FROM ' . PRIVMSGS_TABLE. '
+					WHERE author_id = ' . $pm['from_user_id'] . '
+						AND message_time = ' . $pm['timestamp'] . '
+						AND message_subject = "' . $this->db->sql_escape($pm['subject']) . '"';
+			$result = $this->db->sql_query($sql);
+			$row = $this->db->sql_fetchrow($result);
+			$this->db->sql_freeresult($result);
+
+			if ($row) {
+				$sql = 'INSERT INTO ' . PRIVMSGS_TO_TABLE . ' (msg_id, user_id, author_id) 
+						VALUES '. implode(', ', array_map(
+							function ($k) use ($row) { return '(' . $row['msg_id'] . ',' . $k . ',' . $row['author_id'] . ')'; }, 
+							array_keys($pm['address_list']['u']))) . '
+						ON DUPLICATE KEY UPDATE
+							msg_id = VALUES(msg_id),
+							user_id = VALUES(user_id),
+							author_id = VALUES(author_id)';
+				$this->db->sql_query($sql);
+			} else {
+				/**
+				 * only if subject is prepended by "RE:":
+				 * let's look for something else with this subject before this timestamp
+				 * if we find it, choose the one w/ the most replies so far
+				 */
+				$root_id = 0;
+				if (strpos($pm['subject'], "Re:") === 0) {
+					// Check if such a parent message might exist
+					$sql = 'SELECT msg_id FROM ' . PRIVMSGS_TABLE . ' pm
+								WHERE message_time < ' . $pm['timestamp'] . '
+								AND message_subject = "' . substr($pm['subject'], 4) . '"
+							ORDER BY ( SELECT COUNT(msg_id) FROM ' . PRIVMSGS_TABLE . ' pm2 WHERE pm2.root_level = pm.msg_id )
+							DESC LIMIT 1';
+					$result = $this->db->sql_query($sql);
+					$row = $this->db->sql_fetchrow($result);
+					$this->db->sql_freeresult($result);
+					if ($row) {
+						$root_id = $row['msg_id'];
+					}
+				}
+
+				$pm = array_merge($pm, array(
+					'message' => $this->parser->parse($pm['body']),
+					'bbcode_bitfield' => '',
+					'bbcode_uid' => '',
+					'enable_bbcode' => 1,
+					'icon_id' => 7,
+					'address_list' => array('u' => array_map(function() { return 'to'; }, array_flip($to))),
+					'from_user_ip' => $this->user->ip,
+					'from_user_id' => $from[0],
+					'enable_sig' => 1,
+					'enable_urls' => 1,
+					'enable_bbcode' => 1,
+					'enable_smilies' => 1,
+					'reply_from_msg_id' => $root_id
+				));
+
+				// update the timestamp of this message
+				$msg_id = submit_pm('reply', $pm['subject'], $pm, false);
+				$sql = 'UPDATE ' . PRIVMSGS_TABLE . ' 
+						SET message_time = ' . $pm['timestamp'] . '
+						WHERE msg_id = ' . $msg_id;
+				$this->db->sql_query($sql);
+				
+				// check & update any root ids if this is not a reply
+				$sql = 'UPDATE ' . PRIVMSGS_TABLE . ' SET root_level = ' . $msg_id . '
+							WHERE message_subject = "Re: ' . $pm['subject'] . '"
+							AND root_level = 0 
+							AND message_time > ' . $pm['timestamp'];
+				$this->db->sql_query($sql);
+			}
+		}
 	}
 }

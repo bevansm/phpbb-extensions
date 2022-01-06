@@ -1,11 +1,11 @@
 services:
-  mebird.pmimport.listener:
-    class: mebird\pmimport\event\main_listener
+  bevansm.pmimport.listener:
+    class: bevansm\pmimport\event\main_listener
     arguments:
     tags:
       - { name: event.listener }
-  mebird.pmimport.import_service:
-    class: mebird\pmimport\service\import_service
+  bevansm.pmimport.import_service:
+    class: bevansm\pmimport\service\import_service
     arguments:
       - '@user'
       - '@dbal.conn'

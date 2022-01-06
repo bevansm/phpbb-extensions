@@ -1,0 +1,34 @@
+services:
+  bevansm.vldr.listener:
+    class: bevansm\vldr\event\main_listener
+    arguments:
+      - '@dbal.conn'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_specs%'
+    tags:
+      - { name: event.listener }
+  bevansm.vldr.location_service:
+    class: bevansm\vldr\service\location_service
+    arguments:
+      - '@user'
+      - '@dbal.conn'
+      - '@text_formatter.s9e.parser'
+      - '%tables.vldr_games%'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_chars%'
+  bevansm.vldr.game_service:
+    class: bevansm\vldr\service\game_service
+    arguments:
+      - '@user'
+      - '@dbal.conn'
+      - '%tables.vldr_games%'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_chars%'
+      - '%tables.vldr_specs%'
+  bevansm.vldr.player_service:
+    class: bevansm\vldr\service\player_service
+    arguments:
+      - '@user'
+      - '@dbal.conn'
+      - '%tables.vldr_locs%'
+      - '%tables.vldr_chars%'
