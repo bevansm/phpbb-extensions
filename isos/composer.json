@@ -3,7 +3,7 @@
   "type": "phpbb-extension",
   "description": "Links to user posts &amp; displays of users who have posted.",
   "homepage": "https://vldrhub.com/index.php",
-  "version": "1.0.0-dev",
+  "version": "1.0.1-dev",
   "time": "2020-06-28",
   "license": "GPL-2.0-only",
   "authors": [
